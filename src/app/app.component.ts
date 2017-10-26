@@ -110,7 +110,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
                     }
                 },
                 marker: {
-                    radius: 1,
+                    radius: 0,
                     states: {
                         hover: {
                             radius: 2
@@ -134,12 +134,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   addChartData() {
-    return Observable.of(...this.testData.data)
-    .map(d => Observable.of(d).delay(2000))
+    return Observable.of(...(new Array(100).fill(0)))
+    .map(() => Observable.of(Math.floor(Math.random() * 100)).delay(1000))
     .concatAll()
     .map(d => {
       this.sparkLineChart.series[0].addPoint(d, false, false, {
-        duration: 100,
+        duration: 50,
+        easing: 'swing'
       });
     });
   }
