@@ -2,12 +2,30 @@ import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@ang
 import * as HC from 'highcharts';
 const Highcharts: any = HC;
 
+import { ChangeDetectorRef } from '@angular/core';
+
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/concatAll';
 import 'rxjs/add/observable/of';
 
+const GOOGLEAPI_KEY = 'AIzaSyA1Wtcs3Q_doFRez0uOf5xjvdw3ziClI60';
+
+import * as GM from '@google/maps';
+
+const sparkZone = [
+  {
+    value: 20,
+    color: '#E74646'
+  }, {
+    value: 60,
+    color: '#DBBF34'
+  }, {
+    value: 100,
+    color: '#84EC71'
+  }
+];
 
 
 @Component({
@@ -28,13 +46,39 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     data: [1, 0, 4, 10, 100, 25, 100, 302, 10, 1, 0, 4, 10, 100, 25, 100, 302, 10]
   };
 
+  hello = 'skjdaksdja';
+
+  mapsClient: any;
+  public deviceLocation: string;
+
+  constructor() {
+    this.mapsClient = GM.createClient({
+      key: GOOGLEAPI_KEY,
+    });
+
+    const self = this;
+
+    this.mapsClient.reverseGeocode({
+      latlng: [-33.867154, 151.194581]
+    }, function(err, response) {
+      console.log('HERE - rev. decode');
+      if (err) { console.error(err); return; }
+      const results = response.json.results;
+      console.log(results);
+      if (results.length > 0) {
+        self.deviceLocation = results[0].formatted_address;
+        console.log('HERE - found address');
+      }
+    });
+  }
+
   ngAfterViewInit() {
     this.sparkLineChart = this.renderSparkLine();
 
     this.addChartData()
       .subscribe((d) => {
-        console.log('Added DataPoint');
-        this.sparkLineChart.redraw();
+        // console.log('Added DataPoint');
+        // this.sparkLineChart.redraw();
 
         if (d < 20) {
           this.liveIconDotClass = 'dot rating-bad';
@@ -108,34 +152,35 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             }
         },
         plotOptions: {
-            series: {
-                animation: false,
-                lineWidth: 1,
-                shadow: false,
-                states: {
-                    hover: {
-                        lineWidth: 1
-                    }
-                },
-                marker: {
-                    radius: 0,
-                    states: {
-                        hover: {
-                            radius: 2
-                        }
-                    }
-                },
-                fillOpacity: 0.25
-            },
-            column: {
-                negativeColor: '#910000',
-                borderColor: 'silver'
+        series: {
+          animation: false,
+          lineWidth: 2,
+          shadow: false,
+          states: {
+            hover: {
+                lineWidth: 2
             }
+          },
+          marker: {
+            radius: 0,
+            states: {
+                hover: {
+                    radius: 1
+                }
+            }
+          },
+            fillOpacity: 0.25
+        },
+        column: {
+            negativeColor: '#910000',
+            borderColor: 'silver'
+        }
       },
       series: [
         {
           name: 'Test',
-          data: []
+          data: [],
+          zones: sparkZone,
         },
       ]
     });
@@ -146,9 +191,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     .map(() => Observable.of(Math.floor(Math.random() * 100)).delay(1000))
     .concatAll()
     .map(d => {
-      this.sparkLineChart.series[0].addPoint(d, false, false, {
-        duration: 50,
-        easing: 'swing'
+      this.sparkLineChart.series[0].addPoint(d, true, false, {
+        duration: 500,
+        easing: 'linear'
       });
       return d;
     });
