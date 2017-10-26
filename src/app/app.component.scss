@@ -1,4 +1,42 @@
-div {
-  margin-top: 20px;
-  margin-left: 30px;
+div.test-chart {
+  margin: 100px auto;
+  height: 300px;
+  width: 700px;
+  position: relative;
+}
+
+
+@keyframes expandingAnimation {
+  0%, 100%, 10%, 90% {
+    transform: scale(0.75);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+.live-icon {
+  z-index: 9000;
+  width: 20px;
+  margin: 0 0 0 0;
+  position: absolute;
+  top: 5px;
+  right: 20px;
+  .dot {
+    animation: expandingAnimation 1s infinite;
+    height: 20px;
+    width: 20px;
+    float: left;
+    margin-left: 5px;
+    border-radius: 50%;
+  }
+}
+
+.rating-good {
+  background: #84EC71;
+}
+.rating-fair {
+  background: #DBBF34;
+}
+.rating-bad {
+  background: #E74646;
 }

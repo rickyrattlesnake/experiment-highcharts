@@ -18,6 +18,8 @@ import 'rxjs/add/observable/of';
 export class AppComponent implements AfterViewInit, OnDestroy {
   @ViewChild('sparkLine') sparkLineTarget: ElementRef;
 
+  liveIconDotClass = '';
+
   title = 'app';
   sparkLineChart: Highcharts.ChartObject;
 
@@ -30,9 +32,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.sparkLineChart = this.renderSparkLine();
 
     this.addChartData()
-      .subscribe(() => {
+      .subscribe((d) => {
         console.log('Added DataPoint');
         this.sparkLineChart.redraw();
+
+        if (d < 20) {
+          this.liveIconDotClass = 'dot rating-bad';
+        } else if (d < 60) {
+          this.liveIconDotClass = 'dot rating-fair';
+        } else {
+          this.liveIconDotClass = 'dot rating-good';
+        }
       });
   }
 
@@ -47,8 +57,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
           borderWidth: 0,
           type: 'spline',
           margin: [2, 0, 2, 0],
-          width: 120,
-          height: 20,
           style: {
             overflow: 'visible'
           },
@@ -142,6 +150,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         duration: 50,
         easing: 'swing'
       });
+      return d;
     });
   }
 }
